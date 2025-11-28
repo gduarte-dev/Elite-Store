@@ -1,6 +1,6 @@
 using System;
 
-namespace AppEcommerce.Domain.Entities;
+namespace AppEcommerce.Domain.Entities
 {
     public class ItemPedidoEntity
     {
@@ -17,6 +17,12 @@ namespace AppEcommerce.Domain.Entities;
         public ItemPedidoEntity(int idProduto, int quantidade, decimal subtotal)
         {
             Update(idProduto, quantidade, subtotal);
+        }
+
+        internal void AtribuirPedido(int idPedido, PedidoEntity pedido)
+        {
+            IdPedido = idPedido;
+            Pedido = pedido;
         }
 
         public void Update(int idProduto, int quantidade, decimal subtotal)
