@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace AppEcommerce.Domain.Entities
@@ -6,65 +5,36 @@ namespace AppEcommerce.Domain.Entities
     public class PedidoEntity
     {
         public int IdPedido { get; private set; }
-        public int IdCliente { get; private set; }
-        public DateTime Data { get; private set; }
-        public decimal ValorTotal { get; private set; }
-        public string Status { get; private set; } = string.Empty;
+        public decimal Total { get; private set; }
 
-        public List<ItemPedidoEntity> Itens { get; private set; } = new();
-      
+        private readonly List<ItemPedidoEntity> _itens = new List<ItemPedidoEntity>();
+        public IReadOnlyCollection<ItemPedidoEntity> Itens => _itens.AsReadOnly();
+
         protected PedidoEntity() { }
 
-        public PedidoEntity(int idCliente, List<ItemPedidoEntity> itens, string status)
+        public PedidoEntity(List<ItemPedidoEntity> itens)
         {
-            Update(idCliente, itens, status);
-            Data = DateTime.Now;
+            AdicionarItens(itens);
+            CalcularTotal();
         }
 
-        public void Update(int idCliente, List<ItemPedidoEntity> itens, string status)
+        private void AdicionarItens(List<ItemPedidoEntity> itens)
         {
-            if (idCliente <= 0)
-                throw new ArgumentException("IdCliente inválido.");
-
-            if (itens == null || itens.Count == 0)
-                throw new ArgumentException("Um pedido deve ter ao menos 1 item.");
-
-            if (string.IsNullOrWhiteSpace(status))
-                throw new ArgumentException("Status é obrigatório.");
-
-            IdCliente = idCliente;
-            Itens = itens;
-            Status = status.Trim();
-
-            ValorTotal = 0;
             foreach (var item in itens)
-                ValorTotal += item.Subtotal;
+            {
+                item.AtribuirPedido(IdPedido, this); 
+                _itens.Add(item);
+            }
         }
 
-        public void AlterarStatus(string novoStatus)
+        private void CalcularTotal()
         {
-            if (string.IsNullOrWhiteSpace(novoStatus))
-                throw new ArgumentException("Status é obrigatório.");
-
-            Status = novoStatus.Trim();
-        }
-
-        public void AdicionarItem(ItemPedidoEntity item)
-        {
-            if (item == null)
-                throw new ArgumentException("Item inválido.");
-
-            Itens.Add(item);
-            ValorTotal += item.Subtotal;
-        }
-
-        public void RemoverItem(ItemPedidoEntity item)
-        {
-            if (item == null)
-                throw new ArgumentException("Item inválido.");
-
-            if (Itens.Remove(item))
-                ValorTotal -= item.Subtotal;
+            decimal total = 0;
+            foreach (var item in _itens)
+            {
+                total += item.Subtotal;
+            }
+            Total = total;
         }
     }
 }
