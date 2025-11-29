@@ -17,12 +17,13 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddControllers();
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseCors("EcommercePolicy");
-
-app.UseAuthorization();
 
 app.MapControllers();
 
